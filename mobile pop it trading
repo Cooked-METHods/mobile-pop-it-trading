@@ -1,0 +1,168 @@
+local player = game.Players.LocalPlayer
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = player:WaitForChild("PlayerGui")
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0.35, 0, 0.7, 0) -- Increased height to fit all buttons
+frame.Position = UDim2.new(0.325, 0, 0.15, 0) -- Adjusted position to center it better
+frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+frame.Active = true
+frame.Draggable = true
+frame.Parent = screenGui
+
+local frameCorner = Instance.new("UICorner")
+frameCorner.CornerRadius = UDim.new(0.1, 0)
+frameCorner.Parent = frame
+
+local border = Instance.new("UIStroke")
+border.Thickness = 6
+border.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+border.Parent = frame
+
+spawn(function()
+    while true do
+        for hue = 0, 1, 0.01 do
+            border.Color = Color3.fromHSV(hue, 1, 1)
+            wait(0.05)
+        end
+    end
+end)
+
+local titleBar = Instance.new("Frame")
+titleBar.Size = UDim2.new(0.96, 0, 0.15, 0)
+titleBar.Position = UDim2.new(0.02, 0, 0.02, 0)
+titleBar.BackgroundColor3 = Color3.fromRGB(0, 255, 255)
+titleBar.Parent = frame
+
+local titleCorner = Instance.new("UICorner")
+titleCorner.CornerRadius = UDim.new(0.1, 0)
+titleCorner.Parent = titleBar
+
+local titleLabel = Instance.new("TextLabel")
+titleLabel.Size = UDim2.new(0.7, 0, 1, 0)
+titleLabel.Position = UDim2.new(0.03, 0, 0, 0)
+titleLabel.BackgroundTransparency = 1
+titleLabel.Text = "Pop It by Symphony"
+titleLabel.TextColor3 = Color3.fromRGB(0, 0, 0)
+titleLabel.TextScaled = true
+titleLabel.Font = Enum.Font.SourceSansBold
+titleLabel.Parent = titleBar
+
+local closeButton = Instance.new("TextButton")
+closeButton.Size = UDim2.new(0.15, 0, 0.85, 0)
+closeButton.Position = UDim2.new(0.8, 0, 0.08, 0)
+closeButton.Text = "X"
+closeButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+closeButton.Font = Enum.Font.SourceSansBold
+closeButton.TextScaled = true
+closeButton.Parent = titleBar
+
+closeButton.MouseButton1Click:Connect(function()
+    frame.Visible = false
+end)
+
+local buttonSpacing = 0.2 -- Increased spacing between buttons for better layout
+
+-- Scam Button
+local scamButton = Instance.new("TextButton")
+scamButton.Size = UDim2.new(0.8, 0, 0.15, 0)
+scamButton.Position = UDim2.new(0.1, 0, 0.2, 0)
+scamButton.Text = "!scam!"
+scamButton.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+scamButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+scamButton.Font = Enum.Font.SourceSansBold
+scamButton.TextScaled = true
+scamButton.Parent = frame
+
+-- Trade Value Button
+local tradeButton = Instance.new("TextButton")
+tradeButton.Size = UDim2.new(0.8, 0, 0.15, 0)
+tradeButton.Position = UDim2.new(0.1, 0, 0.2 + buttonSpacing, 0)
+tradeButton.Text = "Trade Value"
+tradeButton.BackgroundColor3 = Color3.fromRGB(0, 70, 70)
+tradeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+tradeButton.Font = Enum.Font.SourceSansBold
+tradeButton.TextScaled = true
+tradeButton.Parent = frame
+
+tradeButton.MouseButton1Click:Connect(function()
+    if player:FindFirstChild("XRay") then
+        player.XRay.Value = true
+    end
+end)
+
+-- Fake Jump Button
+local fakeJumpButton = Instance.new("TextButton")
+fakeJumpButton.Size = UDim2.new(0.8, 0, 0.15, 0)
+fakeJumpButton.Position = UDim2.new(0.1, 0, 0.2 + buttonSpacing * 2, 0)
+fakeJumpButton.Text = "Fake Jump"
+fakeJumpButton.BackgroundColor3 = Color3.fromRGB(70, 70, 0)
+fakeJumpButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+fakeJumpButton.Font = Enum.Font.SourceSansBold
+fakeJumpButton.TextScaled = true
+fakeJumpButton.Parent = frame
+
+local function performFakeJump()
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoid = character:WaitForChild("Humanoid")
+    humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+    wait(0.2)
+    character.HumanoidRootPart.CFrame = character.HumanoidRootPart.CFrame + Vector3.new(0, 2, 0)
+end
+
+fakeJumpButton.MouseButton1Click:Connect(performFakeJump)
+
+-- Hop Server Button
+local hopButton = Instance.new("TextButton")
+hopButton.Size = UDim2.new(0.8, 0, 0.15, 0)
+hopButton.Position = UDim2.new(0.1, 0, 0.2 + buttonSpacing * 3, 0)
+hopButton.Text = "Hop Server"
+hopButton.BackgroundColor3 = Color3.fromRGB(70, 0, 70)
+hopButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+hopButton.Font = Enum.Font.SourceSansBold
+hopButton.TextScaled = true
+hopButton.Parent = frame
+
+local function hopServer()
+    local TeleportService = game:GetService("TeleportService")
+    local HttpService = game:GetService("HttpService")
+    local servers = HttpService:JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Asc&limit=100"))
+    local availableServers = {}
+
+    for _, server in pairs(servers.data) do
+        if server.playing < server.maxPlayers and server.id ~= game.JobId then
+            table.insert(availableServers, server.id)
+        end
+    end
+
+    if #availableServers > 0 then
+        local targetServer = availableServers[math.random(1, #availableServers)]
+        TeleportService:TeleportToPlaceInstance(game.PlaceId, targetServer, player)
+    else
+        warn("No available servers to hop to.")
+    end
+end
+
+hopButton.MouseButton1Click:Connect(hopServer)
+
+-- Scam Function
+scamButton.MouseButton1Click:Connect(function()
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+    local myCFrame = humanoidRootPart.CFrame
+
+    for _, object in ipairs(game.Workspace.Dropped:GetChildren()) do
+        if object:FindFirstChild("Owner") and object.Owner.Value == player then
+            local handle = object:FindFirstChild("Handle")
+            if handle and handle:IsA("BasePart") then
+                handle.CFrame = myCFrame
+                handle.CanCollide = false
+            end
+        end
+    end
+
+    wait(0.2)
+    local humanoid = character:WaitForChild("Humanoid")
+    humanoid.Jump = true
+end)
